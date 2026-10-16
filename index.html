@@ -9,7 +9,7 @@
         body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: #fff; padding-top: 50px; }
         .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; }
         .btn:active { transform: scale(0.95); box-shadow: none; }
-        #status { margin-top: 20px; color: #aaa; font-size: 14px; }
+        #status { margin-top: 20px; color: #ff9900; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -19,35 +19,37 @@
     
     <button class="btn" onclick="sendRebootCommand()">ПЕРЕЗАГРУЗИТЬ АСИК</button>
     
-    <div id="status">Статус: Ожидание действий...</div>
+    <div id="status">Статус: Ожидание нажатия...</div>
 
     <script>
-        // НАСТРОЙКИ (Сюда мы позже вставим ваши данные из MQTT) 
-       const MQTT_HOST = "broker.emqx.io";
-        const MQTT_PORT = 8084; 
-        const MQTT_USER = "";   
-        const MQTT_PASS = "";   
+        const MQTT_HOST = "broker.emqx.io"; 
+        const MQTT_PORT = 443; // Используем стандартный порт HTTPS, его Ростелеком никогда не заблокирует!
         const TOPIC = "myfarm/miner/reboot/992384"; 
 
         function sendRebootCommand() {
-            document.getElementById("status").innerText = "Подключение к серверу...";
-            const clientId = "web_client_" + Math.random().toString(16).substr(2, 8);
-            const client = new Paho.MQTT.Client(MQTT_HOST, Number(MQTT_PORT), clientId);
+            document.getElementById("status").style.color = "#ff9900";
+            document.getElementById("status").innerText = "Подключение к брокеру...";
+            
+            const clientId = "web_" + Math.random().toString(16).substr(2, 8);
+            // Подключаемся через защищенный путь /mqtt
+            const client = new Paho.MQTT.Client(MQTT_HOST, Number(MQTT_PORT), "/mqtt", clientId);
 
             const options = {
                 useSSL: true, 
-                userName: MQTT_USER,
-                password: MQTT_PASS,
+                timeout: 5,
                 onSuccess: function() {
-                    document.getElementById("status").innerText = "Соединение установлено. Отправка команды...";
+                    document.getElementById("status").innerText = "Соединение установлено! Отправка команды...";
                     const message = new Paho.MQTT.Message("1");
                     message.destinationName = TOPIC;
                     client.send(message);
-                    document.getElementById("status").innerText = "Команда перезагрузки успешно отправлена!";
+                    
+                    document.getElementById("status").style.color = "#00ff00";
+                    document.getElementById("status").innerText = "Команда перезагрузки успешно отправлена в облако!";
                     client.disconnect();
                 },
                 onFailure: function(message) {
-                    document.getElementById("status").innerText = "Ошибка подключения: " + message.errorMessage;
+                    document.getElementById("status").style.color = "#ff4d4d";
+                    document.getElementById("status").innerText = "Ошибка: " + message.errorMessage;
                 }
             };
             client.connect(options);
