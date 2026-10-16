@@ -22,12 +22,12 @@
     <div id="status">Статус: Ожидание действий...</div>
 
     <script>
-        // НАСТРОЙКИ (Сюда мы позже вставим ваши данные из MQTT)
-        const MQTT_HOST = "ВАШ_CLUSTER_URL_ИЗ_HIVEMQ"; 
+        // НАСТРОЙКИ (Сюда мы позже вставим ваши данные из MQTT) 
+       const MQTT_HOST = "://hivemq.com";
         const MQTT_PORT = 8884; 
-        const MQTT_USER = "ВАШ_ЛОГИН";
-        const MQTT_PASS = "ВАШ_ПАРОЛЬ";
-        const TOPIC = "home/miner/reboot";
+        const MQTT_USER = "";   
+        const MQTT_PASS = "";   
+        const TOPIC = "myfarm/miner/reboot/992384"; 
 
         function sendRebootCommand() {
             document.getElementById("status").innerText = "Подключение к серверу...";
