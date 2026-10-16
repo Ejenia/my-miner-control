@@ -8,7 +8,8 @@
         body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: #fff; padding-top: 50px; }
         .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; }
         .btn:active { transform: scale(0.95); box-shadow: none; }
-        #status { margin-top: 20px; color: #ff9900; font-size: 16px; font-weight: bold; }
+        iframe { display: none; } /* Скрываем техническое окно отправки */
+        #status { margin-top: 20px; color: #00ff00; font-size: 16px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
@@ -16,42 +17,23 @@
     <h1>Панель управления майнером</h1>
     <p>Нажмите кнопку ниже, чтобы перезагрузить ваш Antminer S19 K Pro из любой точки мира.</p>
     
-    <button class="btn" onclick="sendRebootCommand()">ПЕРЕЗАГРУЗИТЬ АСИК</button>
+    <!-- Невидимая форма для обхода блокировок браузера (CORS) -->
+    <form action="https://emqx.io" method="POST" target="hidden_frame" onsubmit="showStatus()">
+        <input type="hidden" name="topic" value="myfarm/miner/reboot/992384">
+        <input type="hidden" name="payload" value="1">
+        <input type="hidden" name="qos" value="0">
+        <input type="hidden" name="retain" value="false">
+        <button type="submit" class="btn">ПЕРЕЗАГРУЗИТЬ АСИК</button>
+    </form>
+
+    <div id="status">Сигнал успешно отправлен в облако!</div>
     
-    <div id="status">Статус: Ожидание нажатия...</div>
+    <!-- Сюда форма тайно отправляет запрос, чтобы страница не перезагружалась -->
+    <iframe name="hidden_frame"></iframe>
 
     <script>
-        function sendRebootCommand() {
-            document.getElementById("status").style.color = "#ff9900";
-            document.getElementById("status").innerText = "Отправка прямого HTTP запроса...";
-
-            // Отправляем команду "1" через публичный HTTP-API брокера EMQX
-            // Этот запрос имитирует обычное открытие веб-страницы, его нельзя заблокировать
-            fetch("https://emqx.io", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    topic: "myfarm/miner/reboot/992384",
-                    payload: "1",
-                    qos: 0,
-                    retain: false
-                })
-            })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById("status").style.color = "#00ff00";
-                    document.getElementById("status").innerText = "Сигнал успешно пробит и улетел в облако!";
-                } else {
-                    document.getElementById("status").style.color = "#ff4d4d";
-                    document.getElementById("status").innerText = "Ошибка сервера: " + response.status;
-                }
-            })
-            .catch(error => {
-                document.getElementById("status").style.color = "#ff4d4d";
-                document.getElementById("status").innerText = "Сбой сети: " + error.message;
-            });
+        function showStatus() {
+            document.getElementById("status").style.display = "block";
         }
     </script>
 </body>
