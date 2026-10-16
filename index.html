@@ -22,9 +22,10 @@
 
     <script>
         // Используем стабильный публичный сервер, который не блокируется в РФ
-        const MQTT_HOST = "://hivemq.com"; 
-        const MQTT_PORT = 8000; // Открытый порт веб-сокетов для браузеров
+        const MQTT_HOST = "broker.emqx.io"; 
+        const MQTT_PORT = 8083; // Открытый порт веб-сокетов для EMQX
         const TOPIC = "myfarm/miner/reboot/992384"; 
+ 
 
         function sendRebootCommand() {
             document.getElementById("status").style.color = "#ff9900";
