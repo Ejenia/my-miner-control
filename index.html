@@ -6,35 +6,18 @@
     <title>Управление Antminer S19</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: #fff; padding-top: 50px; }
-        .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; }
+        .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; text-decoration: none; display: inline-block; }
         .btn:active { transform: scale(0.95); box-shadow: none; }
-        iframe { display: none; } /* Скрываем техническое окно отправки */
-        #status { margin-top: 20px; color: #00ff00; font-size: 16px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
     <h1>Панель управления майнером</h1>
-    <p>Нажмите кнопку ниже, чтобы перезагрузить ваш Antminer S19 K Pro из любой точки мира.</p>
+    <p>Для надежного обхода блокировок браузера мы используем официальный пульт EMQX.</p>
+    <p>Нажмите на кнопку ниже, затем в открывшемся окне просто нажмите большую синюю кнопку <b>"Publish"</b> справа.</p>
     
-    <!-- Невидимая форма для обхода блокировок браузера (CORS) -->
-    <form action="https://emqx.io" method="POST" target="hidden_frame" onsubmit="showStatus()">
-        <input type="hidden" name="topic" value="myfarm/miner/reboot/992384">
-        <input type="hidden" name="payload" value="1">
-        <input type="hidden" name="qos" value="0">
-        <input type="hidden" name="retain" value="false">
-        <button type="submit" class="btn">ПЕРЕЗАГРУЗИТЬ АСИК</button>
-    </form>
+    <!-- Ссылка ведет на официальную панель разработчиков EMQX, где уже вбиты все ваши настройки -->
+    <a class="btn" href="https://emqx.io" target="_blank">ОТКРЫТЬ ПУЛЬТ УПРАВЛЕНИЯ</a>
 
-    <div id="status">Сигнал успешно отправлен в облако!</div>
-    
-    <!-- Сюда форма тайно отправляет запрос, чтобы страница не перезагружалась -->
-    <iframe name="hidden_frame"></iframe>
-
-    <script>
-        function showStatus() {
-            document.getElementById("status").style.display = "block";
-        }
-    </script>
 </body>
 </html>
