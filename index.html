@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление Antminer S19</title>
-    <script src="https://cloudflare.com" type="text/javascript"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: #fff; padding-top: 50px; }
         .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; }
@@ -22,37 +21,37 @@
     <div id="status">Статус: Ожидание нажатия...</div>
 
     <script>
-        const MQTT_HOST = "broker.emqx.io"; 
-        const MQTT_PORT = 443; // Используем стандартный порт HTTPS, его Ростелеком никогда не заблокирует!
-        const TOPIC = "myfarm/miner/reboot/992384"; 
-
         function sendRebootCommand() {
             document.getElementById("status").style.color = "#ff9900";
-            document.getElementById("status").innerText = "Подключение к брокеру...";
-            
-            const clientId = "web_" + Math.random().toString(16).substr(2, 8);
-            // Подключаемся через защищенный путь /mqtt
-            const client = new Paho.MQTT.Client(MQTT_HOST, Number(MQTT_PORT), "/mqtt", clientId);
+            document.getElementById("status").innerText = "Отправка прямого HTTP запроса...";
 
-            const options = {
-                useSSL: true, 
-                timeout: 5,
-                onSuccess: function() {
-                    document.getElementById("status").innerText = "Соединение установлено! Отправка команды...";
-                    const message = new Paho.MQTT.Message("1");
-                    message.destinationName = TOPIC;
-                    client.send(message);
-                    
-                    document.getElementById("status").style.color = "#00ff00";
-                    document.getElementById("status").innerText = "Команда перезагрузки успешно отправлена в облако!";
-                    client.disconnect();
+            // Отправляем команду "1" через публичный HTTP-API брокера EMQX
+            // Этот запрос имитирует обычное открытие веб-страницы, его нельзя заблокировать
+            fetch("https://emqx.io", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
                 },
-                onFailure: function(message) {
+                body: JSON.stringify({
+                    topic: "myfarm/miner/reboot/992384",
+                    payload: "1",
+                    qos: 0,
+                    retain: false
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById("status").style.color = "#00ff00";
+                    document.getElementById("status").innerText = "Сигнал успешно пробит и улетел в облако!";
+                } else {
                     document.getElementById("status").style.color = "#ff4d4d";
-                    document.getElementById("status").innerText = "Ошибка: " + message.errorMessage;
+                    document.getElementById("status").innerText = "Ошибка сервера: " + response.status;
                 }
-            };
-            client.connect(options);
+            })
+            .catch(error => {
+                document.getElementById("status").style.color = "#ff4d4d";
+                document.getElementById("status").innerText = "Сбой сети: " + error.message;
+            });
         }
     </script>
 </body>
