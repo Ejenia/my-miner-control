@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление Antminer S19</title>
+    <script src="https://cloudflare.com" type="text/javascript"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: #fff; padding-top: 50px; }
+        .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; }
+        .btn:active { transform: scale(0.95); box-shadow: none; }
+        #status { margin-top: 20px; color: #aaa; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <h1>Панель управления майнером</h1>
+    <p>Нажмите кнопку ниже, чтобы перезагрузить ваш Antminer S19 K Pro из любой точки мира.</p>
+    
+    <button class="btn" onclick="sendRebootCommand()">ПЕРЕЗАГРУЗИТЬ АСИК</button>
+    
+    <div id="status">Статус: Ожидание действий...</div>
+
+    <script>
+        // НАСТРОЙКИ (Сюда мы позже вставим ваши данные из MQTT)
+        const MQTT_HOST = "ВАШ_CLUSTER_URL_ИЗ_HIVEMQ"; 
+        const MQTT_PORT = 8884; 
+        const MQTT_USER = "ВАШ_ЛОГИН";
+        const MQTT_PASS = "ВАШ_ПАРОЛЬ";
+        const TOPIC = "home/miner/reboot";
+
+        function sendRebootCommand() {
+            document.getElementById("status").innerText = "Подключение к серверу...";
+            const clientId = "web_client_" + Math.random().toString(16).substr(2, 8);
+            const client = new Paho.MQTT.Client(MQTT_HOST, Number(MQTT_PORT), clientId);
+
+            const options = {
+                useSSL: true, 
+                userName: MQTT_USER,
+                password: MQTT_PASS,
+                onSuccess: function() {
+                    document.getElementById("status").innerText = "Соединение установлено. Отправка команды...";
+                    const message = new Paho.MQTT.Message("1");
+                    message.destinationName = TOPIC;
+                    client.send(message);
+                    document.getElementById("status").innerText = "Команда перезагрузки успешно отправлена!";
+                    client.disconnect();
+                },
+                onFailure: function(message) {
+                    document.getElementById("status").innerText = "Ошибка подключения: " + message.errorMessage;
+                }
+            };
+            client.connect(options);
+        }
+    </script>
+</body>
+</html>
