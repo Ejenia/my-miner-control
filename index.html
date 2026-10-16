@@ -4,20 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление Antminer S19</title>
+    <script src="https://cloudflare.com" type="text/javascript"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: #fff; padding-top: 50px; }
-        .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; text-decoration: none; display: inline-block; }
+        .btn { background: #ff4d4d; color: white; border: none; padding: 20px 40px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(255,77,77,0.4); transition: 0.2s; }
         .btn:active { transform: scale(0.95); box-shadow: none; }
+        #status { margin-top: 20px; color: #ff9900; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <h1>Панель управления майнером</h1>
-    <p>Для надежного обхода блокировок браузера мы используем официальный пульт EMQX.</p>
-    <p>Нажмите на кнопку ниже, затем в открывшемся окне просто нажмите большую синюю кнопку <b>"Publish"</b> справа.</p>
+    <p>Нажмите кнопку ниже, чтобы перезагрузить ваш Antminer S19 K Pro из любой точки мира.</p>
     
-    <!-- Ссылка ведет на официальную панель разработчиков EMQX, где уже вбиты все ваши настройки -->
-    <a class="btn" href="https://emqx.io" target="_blank">ОТКРЫТЬ ПУЛЬТ УПРАВЛЕНИЯ</a>
+    <button class="btn" onclick="sendRebootCommand()">ПЕРЕЗАГРУЗИТЬ АСИК</button>
+    <div id="status">Статус: Ожидание нажатия...</div>
 
+    <script>
+        // Используем стабильный публичный сервер, который не блокируется в РФ
+        const MQTT_HOST = "://hivemq.com"; 
+        const MQTT_PORT = 8000; // Открытый порт веб-сокетов для браузеров
+        const TOPIC = "myfarm/miner/reboot/992384"; 
+
+        function sendRebootCommand() {
+            document.getElementById("status").style.color = "#ff9900";
+            document.getElementById("status").innerText = "Подключение к серверу...";
+            
+            const clientId = "web_client_" + Math.random().toString(16).substr(2, 8);
+            const client = new Paho.MQTT.Client(MQTT_HOST, Number(MQTT_PORT), clientId);
+
+            const options = {
+                onSuccess: function() {
+                    document.getElementById("status").innerText = "Соединение установлено! Отправка...";
+                    const message = new Paho.MQTT.Message("1");
+                    message.destinationName = TOPIC;
+                    client.send(message);
+                    document.getElementById("status").style.color = "#00ff00";
+                    document.getElementById("status").innerText = "Команда успешно отправлена! Асик перезагружается.";
+                    client.disconnect();
+                },
+                onFailure: function(message) {
+                    document.getElementById("status").style.color = "#ff4d4d";
+                    document.getElementById("status").innerText = "Ошибка: " + message.errorMessage;
+                }
+            };
+            client.connect(options);
+        }
+    </script>
 </body>
 </html>
